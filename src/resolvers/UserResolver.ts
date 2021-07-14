@@ -4,6 +4,7 @@ import {
   Arg,
   Ctx,
   Field,
+  Int,
   Mutation,
   ObjectType,
   Query,
@@ -16,6 +17,7 @@ import { sign } from "jsonwebtoken";
 import { MyContext } from "../MyContext";
 import { createRefreshToken } from "../auth";
 import { isAuth } from "../isAuth";
+import { getConnection } from "typeorm";
 
 @ObjectType()
 class LoginResponse {
@@ -39,6 +41,14 @@ export class UserResolver {
   @Query(() => [User])
   users() {
     return User.find();
+  }
+
+  @Mutation(() => Boolean)
+  async revokeTokenUser(
+    @Arg('userId', () => Int) userId: number
+  ) {
+    await getConnection().getRepository(User).increment({ id: userId }, 'tokenVersion', 1);
+    return true
   }
 
   @Mutation(() => Boolean)
