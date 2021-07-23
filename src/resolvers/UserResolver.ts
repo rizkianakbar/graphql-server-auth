@@ -24,6 +24,8 @@ import { getConnection } from 'typeorm'
 class LoginResponse {
   @Field()
   accessToken: string
+  @Field(() => User)
+  user: User
 }
 
 @Resolver()
@@ -61,6 +63,12 @@ export class UserResolver {
       console.log(err)
       return null
     }
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { res }: MyContext) {
+    sendRefreshToken(res, '')
+    return true
   }
 
   @Mutation(() => Boolean)
@@ -115,6 +123,7 @@ export class UserResolver {
 
     return {
       accessToken: createAccessToken(user),
+      user,
     }
   }
 }
